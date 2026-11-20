@@ -50,7 +50,7 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px 14px
 <div class="badge" id="bd"></div></div>
 <nav id="nav"></nav>
 <div class="bar"><select id="dt" aria-label="Date"></select>
-<span class="f bar"><input id="q" placeholder="Search product or EAN" aria-label="Search"><select id="cat" aria-label="Category"><option value="">All categories</option></select>
+<span class="f bar"><input id="q" placeholder="Search product, EAN, ASIN, FSN or SKU" aria-label="Search"><select id="cat" aria-label="Category"><option value="">All categories</option></select>
 <select id="so" aria-label="Sort"><option value="gap">Widest gap first</option><option value="max">Highest discount first</option><option value="n">Name</option></select>
 <label><input type="checkbox" id="hi"> High discount only</label></span>
 <span class="ad bar"><label class="mu">High above <input type="number" id="th" min="1" max="60"> %</label>
@@ -62,40 +62,44 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px 14px
 <script>
 const ADMIN=true;
 const PL=[['Supertails','--s','S'],['Amazon','--a','A'],['Flipkart','--f','F']];
-let MAP={},MS={},SN={},T=12,MP=40,tab='cmp',open='',date='',PV=[],msg='',dirty=false;
+let INV={},MAP={},MS={},SN={},T=12,MP=40,tab='cmp',open='',date='',PV=[],msg='',dirty=false;
 const $=s=>document.querySelector(s),f1=x=>x.toFixed(1)+'%',rs=x=>'₹'+Math.round(x).toLocaleString('en-IN');
 const lab=d=>d=='sample'?'Sample files':d,dates=()=>Object.keys(SN).sort().reverse();
+const IDL=['Supertails SKU','Amazon ASIN','Flipkart FSN'],idsOf=r=>PL.map(p=>(INV[p[2]]||{})[r.e]||[]),sx=r=>(r.n+' '+r.e+' '+idsOf(r).flat().join(' ')).toLowerCase();
 const dflt=()=>dates().find(d=>Object.keys(SN[d]).length>1)||dates()[0]||'';
 const why=(p,lm,u)=>lm===0?'Listed MRP is 0':p<MP/100*u?`Price is under ${MP}% of our MRP`:'';
-function calc(d){const s=SN[d]||{},by={},H=[],bad=[];
+function calc(d){const s=SN[d]||{},by={},H=[],bad=[],IX={},unm=[];
  PL.forEach(([,,k])=>{const rows=s[k];if(!rows){H.push(null);return}let v=0,un=0,sp=0;
-  rows.forEach(([id,p,lm])=>{const e=MAP[k][id];if(!e){un++;return}if(!(p>0))return;const w=why(p,lm,MS[e][3]);
+  rows.forEach(([id,p,lm])=>{(IX[k]=IX[k]||{})[id]=[p,lm];const e=MAP[k][id];if(!e){un++;unm.push({k,id,p});return}if(!(p>0))return;const w=why(p,lm,MS[e][3]);
    if(w){sp++;bad.push({k,id,e,p,w})}else v++;
    const o=by[e]=by[e]||{},c=o[k];if(!c||(c.b&&!w)||(c.b==!!w&&p<c.p))o[k]={p,b:!!w}});
   H.push([rows.length,v,sp,un])});
  const all=Object.entries(by).map(([e,o])=>{const m=MS[e];return{e,n:m[0],c:m[1],k:m[2],m:m[3],
   d:PL.map(([,,k])=>o[k]&&!o[k].b?(m[3]-o[k].p)/m[3]*100:null),p:PL.map(([,,k])=>o[k]?o[k].p:null),b:PL.map(([,,k])=>!!(o[k]&&o[k].b))}});
- return{all,rows:all.filter(r=>r.d.filter(x=>x!=null).length>1),H,bad,s}}
+ return{all,rows:all.filter(r=>r.d.filter(x=>x!=null).length>1),H,bad,s,IX,unm}}
 const V=r=>r.d.filter(x=>x!=null),G=r=>{const v=V(r);return v.length>1?Math.max(...v)-Math.min(...v):0};
 const TABS=()=>[['cmp','Compare'],['hz','High discount zone'],['hl','Data health'],...(ADMIN?[['up','Upload reports']]:[]),['tr','Trends']];
 function sum(C){return '<div class="sum">'+PL.map((p,i)=>{const v=C.all.map(r=>r.d[i]).filter(x=>x!=null),h=v.filter(x=>x>T).length;
  return `<div class="sm" style="border-color:var(${p[1]})"><small>${p[0]} average discount</small><b>${v.length?f1(v.reduce((a,b)=>a+b,0)/v.length):'no data'}</b><small>${C.s[p[2]]?`${h} of ${v.length} products above ${T}%`:'No upload for this date'}</small></div>`}).join('')+'</div>'}
 function cell(r,j,C){const d=r.d[j];return d!=null?`<span class="${d>T?'h':''}">${f1(d)}</span>`:r.b[j]?'<span class="sus" title="Price looks wrong. See Data health">price suspect</span>':`<span class="mu">${C.s[PL[j][2]]?'no price':'no upload'}</span>`}
 function filt(C){const q=$('#q').value.toLowerCase(),c=$('#cat').value,so=$('#so').value,h=$('#hi').checked;
- return C.rows.filter(r=>(!q||(r.n+r.e).toLowerCase().includes(q))&&(!c||r.c==c)&&(!h||V(r).some(x=>x>T)))
+ return C.rows.filter(r=>(!q||sx(r).includes(q))&&(!c||r.c==c)&&(!h||V(r).some(x=>x>T)))
  .sort(so=='gap'?(a,b)=>G(b)-G(a):so=='max'?(a,b)=>Math.max(...V(b))-Math.max(...V(a)):(a,b)=>a.n.localeCompare(b.n))}
+function idb(r,j,C){const k=PL[j][2],ids=(INV[k]||{})[r.e]||[],lk=id=>k=='A'?`<a href="https://www.amazon.in/dp/${id}" target="_blank" rel="noopener">${id}</a>`:k=='F'?`<a href="https://www.flipkart.com/product/p/itme?pid=${id}" target="_blank" rel="noopener">${id}</a>`:id;
+ return ids.length?ids.map(id=>{const x=C.IX[k]&&C.IX[k][id],st=!C.s[k]?'no upload':!x?'not in this report':!(x[0]>0)?'no price':why(x[0],x[1],r.m)?rs(x[0])+' (suspect)':rs(x[0]);return `<div>${lk(id)} <span class="mu">${st}</span></div>`}).join(''):'<div class="mu">No ID mapped</div>'}
 function cmp(C){const L=filt(C);
  let o=sum(C)+`<div class="card"><div class="hd"><span>${L.length} products with a valid price on 2 or more platforms</span><span class="lg">${PL.map(p=>`<span><i style="background:var(${p[1]})"></i>${p[0]}</span>`).join('')}</span><span class="mu">Discount % (shaded area is above ${T}%)</span><span style="text-align:right">Gap</span></div>`;
  L.forEach(r=>{o+=`<div class="row" tabindex="0" data-e="${r.e}"><div class="nm"><b>${r.n}</b><span>${r.c}, ${r.k}</span></div>
  <div class="trk"><i class="z" style="width:${100-T*2}%"></i><i class="tk"></i>${r.d.map((d,j)=>d==null?'':`<i class="dot${d>T?' h':''}" style="left:${Math.min(Math.max(d,0),50)*2}%;background:var(${PL[j][1]})" title="${PL[j][0]} ${f1(d)}"></i>`).join('')}</div>
  <div class="nums">${r.d.map((d,j)=>cell(r,j,C)).join('')}</div><div class="gp">${G(r).toFixed(1)}</div></div>`;
- if(open==r.e)o+=`<div class="det">${r.d.map((d,j)=>`<div><b style="color:var(${PL[j][1]})">${PL[j][0]}</b><br>${r.p[j]==null?'No price':rs(r.p[j])+' selling price'+(r.b[j]?' (suspect)':'')}<br><span class="mu">Our MRP ${rs(r.m)}</span></div>`).join('')}<div class="mu" style="grid-column:1/-1">EAN ${r.e}</div></div>`});
+ if(open==r.e)o+=`<div class="det">${r.d.map((d,j)=>`<div><b style="color:var(${PL[j][1]})">${PL[j][0]}</b><br>${r.p[j]==null?'No price':rs(r.p[j])+' selling price'+(r.b[j]?' (suspect)':'')}<br><span class="mu">Our MRP ${rs(r.m)}</span><div class="mu" style="margin-top:8px">${IDL[j]}</div>${idb(r,j,C)}</div>`).join('')}<div class="mu" style="grid-column:1/-1">EAN ${r.e}. Price shown is the lowest valid one among the listings for this EAN.</div></div>`});
  return o+'</div>'}
 function hz(C){return sum(C)+'<div class="cols">'+PL.map((p,j)=>{const L=C.all.filter(r=>r.d[j]>T).sort((a,b)=>b.d[j]-a.d[j]);
  return `<div class="card"><b style="color:var(${p[1]})">${p[0]}</b> <span class="mu">${L.length} above ${T}%</span>`+L.map(r=>`<div class="li"><span>${r.n}</span><b>${f1(r.d[j])}</b></div>`).join('')+'</div>'}).join('')+'</div>'}
 function hl(C){const D=dates();
  let o=`<div class="card"><table><tr><th>Platform</th><th>Listings</th><th>Valid price</th><th>Suspect price</th><th>No EAN yet</th></tr>${PL.map((p,j)=>{const h=C.H[j];return h?`<tr><td>${p[0]}</td><td>${h[0]}</td><td>${h[1]}</td><td class="${h[2]?'er':''}">${h[2]}</td><td>${h[3]}</td></tr>`:`<tr><td>${p[0]}</td><td colspan="4" class="mu">No upload for this date</td></tr>`}).join('')}</table></div>`;
  o+=`<p><b>Needs checking</b> <span class="mu">${C.bad.length} listings left out of all numbers</span></p><div class="card"><table><tr><th>Platform</th><th>Product</th><th>Price read</th><th>Reason</th></tr>${C.bad.map(b=>`<tr><td>${PL.find(p=>p[2]==b.k)[0]}</td><td>${MS[b.e][0]}</td><td>${rs(b.p)}</td><td>${b.w}</td></tr>`).join('')||'<tr><td colspan="4" class="mu">Nothing to check</td></tr>'}</table></div>`;
+ o+=`<details><summary><b>Listings without an EAN</b> <span class="mu">${C.unm.length} in this date’s reports</span></summary><div class="card"><table><tr><th>Platform</th><th>ID</th><th>Price read</th></tr>${C.unm.map(u=>`<tr><td>${PL.find(p=>p[2]==u.k)[0]}</td><td>${u.id}</td><td>${u.p>0?rs(u.p):'no price'}</td></tr>`).join('')}</table></div></details>`;
  return o+`<p><b>Coverage by date</b></p><div class="card"><table><tr><th>Date</th>${PL.map(p=>`<th>${p[0]}</th>`).join('')}${ADMIN?'<th></th>':''}</tr>${D.map(d=>`<tr><td>${lab(d)}</td>${PL.map(p=>`<td class="${SN[d][p[2]]?'ok':'mu'}">${SN[d][p[2]]?'Uploaded':'Missing'}</td>`).join('')}${ADMIN?`<td><button class="btn" data-rm="${d}">Remove</button></td>`:''}</tr>`).join('')}</table></div>`}
 function up(){return `<div class="drop"><b>Drop the Amazon, Flipkart and Supertails reports here</b><p class="mu">Excel files (.xlsx). The platform is recognised from the columns. Uploading a platform and date that already exist replaces it. After saving, download data.json and upload it to your GitHub repo.</p><input type="file" id="fi" accept=".xlsx" multiple></div>${msg?`<p class="ok">${msg}</p>`:''}`+
  (PV.length?`<div class="card">${PV.map((p,i)=>{if(p.err)return `<div class="pv"><span>${p.name}</span><span class="er" style="grid-column:2/7">${p.err}</span></div>`;const pl=PL.find(x=>x[2]==p.k),m=p.rows.filter(r=>MAP[p.k][r[0]]),sp=m.filter(r=>r[1]>0&&why(r[1],r[2],MS[MAP[p.k][r[0]]][3])).length;
@@ -117,8 +121,8 @@ function save(){let n=0;for(const p of PV){if(p.err||!/^\d{4}-\d\d-\d\d$/.test(p
  PV=[];dirty=true;date=dflt();msg=`${n} reports added. Download data.json and upload it to GitHub to publish them.`;draw()}
 function dlJson(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({settings:{T,MP},snaps:SN,map:MAP,master:MS})],{type:'application/json'}));a.download='data.json';a.click();dirty=false;draw()}
 function report(){const C=calc(date),L=filt(C),n=PL.map(p=>p[0]);
- const A=[['Product','EAN','Category','Pack','Our MRP',...n.flatMap(x=>[x+' price',x+' discount %']),'Gap (pp)','High discount on']];
- L.forEach(r=>A.push([r.n,r.e,r.c,r.k,r.m,...r.d.flatMap((d,j)=>[r.p[j],d!=null?+d.toFixed(1):r.b[j]?'suspect':'']),+G(r).toFixed(1),r.d.map((d,j)=>d>T?n[j]:'').filter(Boolean).join(', ')]));
+ const A=[['Product','EAN','Supertails SKU','Amazon ASIN','Flipkart FSN','Category','Pack','Our MRP',...n.flatMap(x=>[x+' price',x+' discount %']),'Gap (pp)','High discount on']];
+ L.forEach(r=>A.push([r.n,r.e,...idsOf(r).map(a=>a.join(', ')),r.c,r.k,r.m,...r.d.flatMap((d,j)=>[r.p[j],d!=null?+d.toFixed(1):r.b[j]?'suspect':'']),+G(r).toFixed(1),r.d.map((d,j)=>d>T?n[j]:'').filter(Boolean).join(', ')]));
  const B=[['Platform','Product','EAN','Price read','Reason'],...C.bad.map(b=>[PL.find(p=>p[2]==b.k)[0],MS[b.e][0],b.e,b.p,b.w])];
  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(A),'Comparison');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(B),'Suspect prices');
  XLSX.writeFile(wb,`discount_report_${date||'none'}.xlsx`)}
@@ -130,7 +134,7 @@ document.addEventListener('change',async e=>{const t=e.target;if(t.id=='fi'){PV=
 ['q','cat','so','hi'].forEach(i=>$('#'+i).addEventListener('input',()=>{open='';draw()}));
 $('#th').addEventListener('input',e=>{T=+e.target.value||12;dirty=true;draw()});$('#mp').addEventListener('input',e=>{MP=+e.target.value||40;dirty=true;draw()});
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.classList.contains('row'))e.target.click()});
-function load(j){MAP=j.map;MS=j.master;SN=j.snaps;T=j.settings.T;MP=j.settings.MP;date=dflt();
+function load(j){MAP=j.map;INV={S:{},A:{},F:{}};for(const k in MAP)for(const id in MAP[k])(INV[k][MAP[k][id]]=INV[k][MAP[k][id]]||[]).push(id);MS=j.master;SN=j.snaps;T=j.settings.T;MP=j.settings.MP;date=dflt();
  const cs=[...new Set(Object.values(MS).map(m=>m[1]))].sort();$('#cat').innerHTML='<option value="">All categories</option>'+cs.map(c=>`<option>${c}</option>`).join('');draw()}
 fetch('data.json?'+Date.now()).then(r=>r.json()).then(load).catch(()=>{document.body.className=ADMIN?'adm':'vw';$('#main').innerHTML='<div class="drop"><b>Could not load data.json</b><p class="mu">Keep data.json in the same folder as this page. If you opened the file from your computer, choose data.json here.</p><input type="file" id="jf" accept=".json"></div>'});
 </script></body></html>
