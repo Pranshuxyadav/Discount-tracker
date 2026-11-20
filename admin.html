@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Discount watch (admin)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F6F7;--cd:#fff;--ink:#1B2733;--mu:#5B6B79;--ln:#DCE3E8;--hi:#C2255C;--hb:rgba(194,37,92,.09);--s:#0E8F83;--a:#C77700;--f:#2F66D0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181D;--cd:#1A2229;--ink:#E6EDF2;--mu:#93A3B1;--ln:#2B3640;--hi:#FF6B9A;--hb:rgba(255,107,154,.12);--s:#34C9BA;--a:#F0A53A;--f:#6C9BFF;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12181D;--cd:#1A2229;--ink:#E6EDF2;--mu:#93A3B1;--ln:#2B3640;--hi:#FF6B9A;--hb:rgba(255,107,154,.12);--s:#34C9BA;--a:#F0A53A;--f:#6C9BFF;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Schibsted Grotesk",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.w{max-width:1080px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 2px;letter-spacing:-.01em}.mu{color:var(--mu)}
+.top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+.badge{border:1px solid var(--ln);background:var(--cd);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--mu);max-width:420px}
+nav{display:flex;gap:2px;border-bottom:1px solid var(--ln);margin-bottom:14px;overflow-x:auto}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 14px;font:inherit;color:var(--mu);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-color:var(--ink);font-weight:700}nav button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{outline:2px solid var(--f);outline-offset:2px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sm{background:var(--cd);border:1px solid var(--ln);border-left:4px solid;border-radius:6px;padding:10px 12px}
+.sm b{font-size:24px;display:block;line-height:1.1}.sm small{color:var(--mu)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.bar input,.bar select{font:inherit;color:var(--ink);background:var(--cd);border:1px solid var(--ln);border-radius:6px;padding:6px 8px}
+.bar input[type=number]{width:60px}.bar label{display:flex;gap:6px;align-items:center}
+.card{background:var(--cd);border:1px solid var(--ln);border-radius:8px}
+.hd,.row{display:grid;grid-template-columns:minmax(150px,1.3fr) 2.2fr 3fr 54px;gap:12px;align-items:center;padding:9px 14px}
+.hd{font-size:12px;color:var(--mu);border-bottom:1px solid var(--ln)}
+.row{border-bottom:1px solid var(--ln);cursor:pointer}.row:last-child{border:0}.row:hover{background:var(--hb)}
+.nm b{font-weight:500;display:block}.nm span{font-size:12px;color:var(--mu)}
+.trk{position:relative;height:24px}
+.trk .z{position:absolute;top:0;bottom:0;right:0;background:var(--hb);border-left:1px dashed var(--hi)}
+.trk .tk{position:absolute;left:0;right:0;top:11px;height:2px;background:var(--ln)}
+.dot{position:absolute;top:5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--cd)}
+.dot.h{box-shadow:0 0 0 2px var(--hi)}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:right}
+.nums span{padding:1px 4px;border-radius:4px}.nums .h{background:var(--hb);color:var(--hi);font-weight:700}.nums .sus{outline:1px dashed var(--mu)}
+.gp{text-align:right;font-weight:700}
+.det{padding:8px 14px 12px;background:var(--bg);border-bottom:1px solid var(--ln);font-size:13px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lg{display:flex;gap:12px;font-size:12px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.cols .card{padding:10px 12px}
+.li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--ln);font-size:13px}.li b{color:var(--hi)}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px 14px;border-bottom:1px solid var(--ln)}th{color:var(--mu);font-weight:500;font-size:12px}
+@media(max-width:760px){.hd{display:none}.row{grid-template-columns:1fr 54px}.row .trk,.row .nums{grid-column:1/3}.sum,.cols,.det{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.dot{transition:left .25s}}
+.pv{display:grid;grid-template-columns:1.4fr repeat(5,1fr);gap:8px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--ln)}
+.btn{font:inherit;background:var(--ink);color:var(--bg);border:0;border-radius:6px;padding:8px 14px;cursor:pointer}.drop{border:2px dashed var(--ln);border-radius:8px;padding:22px;text-align:center;margin-bottom:12px}
+.ok{color:var(--s)}.er{color:var(--hi)}.vw .ad,.adm .vw{display:none}
+@media(max-width:760px){.pv{grid-template-columns:1fr 1fr}}
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head><body class="adm"><div class="w">
+<div class="top"><div><h1>Discount watch</h1><div class="mu">Same-day discount per product on Supertails, Amazon and Flipkart, measured against our own MRP</div></div>
+<div class="badge" id="bd"></div></div>
+<nav id="nav"></nav>
+<div class="bar"><select id="dt" aria-label="Date"></select>
+<span class="f bar"><input id="q" placeholder="Search product or EAN" aria-label="Search"><select id="cat" aria-label="Category"><option value="">All categories</option></select>
+<select id="so" aria-label="Sort"><option value="gap">Widest gap first</option><option value="max">Highest discount first</option><option value="n">Name</option></select>
+<label><input type="checkbox" id="hi"> High discount only</label></span>
+<span class="ad bar"><label class="mu">High above <input type="number" id="th" min="1" max="60"> %</label>
+<label class="mu">Suspect below <input type="number" id="mp" min="5" max="90"> % of our MRP</label></span>
+<span class="vw mu">High discount means above <b id="thx"></b>%</span>
+<button class="btn" id="rp">Download report</button><button class="btn ad" id="dl">Download data.json</button></div>
+<div id="main"></div>
+<p class="mu" style="font-size:12px;margin-top:14px">Discount = (our MRP − selling price) ÷ our MRP. Treat MRPs are per carton in the May list, so they are divided by 15. Above the threshold means the platform is running a high discount. It’s a signal, not a limit. A price is marked suspect, and left out of every number, when its listed MRP is 0 or it is far below our MRP. Where a platform has two listings for one EAN, the lower valid price is used.</p></div>
+<script>
+const ADMIN=true;
+const PL=[['Supertails','--s','S'],['Amazon','--a','A'],['Flipkart','--f','F']];
+let MAP={},MS={},SN={},T=12,MP=40,tab='cmp',open='',date='',PV=[],msg='',dirty=false;
+const $=s=>document.querySelector(s),f1=x=>x.toFixed(1)+'%',rs=x=>'₹'+Math.round(x).toLocaleString('en-IN');
+const lab=d=>d=='sample'?'Sample files':d,dates=()=>Object.keys(SN).sort().reverse();
+const dflt=()=>dates().find(d=>Object.keys(SN[d]).length>1)||dates()[0]||'';
+const why=(p,lm,u)=>lm===0?'Listed MRP is 0':p<MP/100*u?`Price is under ${MP}% of our MRP`:'';
+function calc(d){const s=SN[d]||{},by={},H=[],bad=[];
+ PL.forEach(([,,k])=>{const rows=s[k];if(!rows){H.push(null);return}let v=0,un=0,sp=0;
+  rows.forEach(([id,p,lm])=>{const e=MAP[k][id];if(!e){un++;return}if(!(p>0))return;const w=why(p,lm,MS[e][3]);
+   if(w){sp++;bad.push({k,id,e,p,w})}else v++;
+   const o=by[e]=by[e]||{},c=o[k];if(!c||(c.b&&!w)||(c.b==!!w&&p<c.p))o[k]={p,b:!!w}});
+  H.push([rows.length,v,sp,un])});
+ const all=Object.entries(by).map(([e,o])=>{const m=MS[e];return{e,n:m[0],c:m[1],k:m[2],m:m[3],
+  d:PL.map(([,,k])=>o[k]&&!o[k].b?(m[3]-o[k].p)/m[3]*100:null),p:PL.map(([,,k])=>o[k]?o[k].p:null),b:PL.map(([,,k])=>!!(o[k]&&o[k].b))}});
+ return{all,rows:all.filter(r=>r.d.filter(x=>x!=null).length>1),H,bad,s}}
+const V=r=>r.d.filter(x=>x!=null),G=r=>{const v=V(r);return v.length>1?Math.max(...v)-Math.min(...v):0};
+const TABS=()=>[['cmp','Compare'],['hz','High discount zone'],['hl','Data health'],...(ADMIN?[['up','Upload reports']]:[]),['tr','Trends']];
+function sum(C){return '<div class="sum">'+PL.map((p,i)=>{const v=C.all.map(r=>r.d[i]).filter(x=>x!=null),h=v.filter(x=>x>T).length;
+ return `<div class="sm" style="border-color:var(${p[1]})"><small>${p[0]} average discount</small><b>${v.length?f1(v.reduce((a,b)=>a+b,0)/v.length):'no data'}</b><small>${C.s[p[2]]?`${h} of ${v.length} products above ${T}%`:'No upload for this date'}</small></div>`}).join('')+'</div>'}
+function cell(r,j,C){const d=r.d[j];return d!=null?`<span class="${d>T?'h':''}">${f1(d)}</span>`:r.b[j]?'<span class="sus" title="Price looks wrong. See Data health">price suspect</span>':`<span class="mu">${C.s[PL[j][2]]?'no price':'no upload'}</span>`}
+function filt(C){const q=$('#q').value.toLowerCase(),c=$('#cat').value,so=$('#so').value,h=$('#hi').checked;
+ return C.rows.filter(r=>(!q||(r.n+r.e).toLowerCase().includes(q))&&(!c||r.c==c)&&(!h||V(r).some(x=>x>T)))
+ .sort(so=='gap'?(a,b)=>G(b)-G(a):so=='max'?(a,b)=>Math.max(...V(b))-Math.max(...V(a)):(a,b)=>a.n.localeCompare(b.n))}
+function cmp(C){const L=filt(C);
+ let o=sum(C)+`<div class="card"><div class="hd"><span>${L.length} products with a valid price on 2 or more platforms</span><span class="lg">${PL.map(p=>`<span><i style="background:var(${p[1]})"></i>${p[0]}</span>`).join('')}</span><span class="mu">Discount % (shaded area is above ${T}%)</span><span style="text-align:right">Gap</span></div>`;
+ L.forEach(r=>{o+=`<div class="row" tabindex="0" data-e="${r.e}"><div class="nm"><b>${r.n}</b><span>${r.c}, ${r.k}</span></div>
+ <div class="trk"><i class="z" style="width:${100-T*2}%"></i><i class="tk"></i>${r.d.map((d,j)=>d==null?'':`<i class="dot${d>T?' h':''}" style="left:${Math.min(Math.max(d,0),50)*2}%;background:var(${PL[j][1]})" title="${PL[j][0]} ${f1(d)}"></i>`).join('')}</div>
+ <div class="nums">${r.d.map((d,j)=>cell(r,j,C)).join('')}</div><div class="gp">${G(r).toFixed(1)}</div></div>`;
+ if(open==r.e)o+=`<div class="det">${r.d.map((d,j)=>`<div><b style="color:var(${PL[j][1]})">${PL[j][0]}</b><br>${r.p[j]==null?'No price':rs(r.p[j])+' selling price'+(r.b[j]?' (suspect)':'')}<br><span class="mu">Our MRP ${rs(r.m)}</span></div>`).join('')}<div class="mu" style="grid-column:1/-1">EAN ${r.e}</div></div>`});
+ return o+'</div>'}
+function hz(C){return sum(C)+'<div class="cols">'+PL.map((p,j)=>{const L=C.all.filter(r=>r.d[j]>T).sort((a,b)=>b.d[j]-a.d[j]);
+ return `<div class="card"><b style="color:var(${p[1]})">${p[0]}</b> <span class="mu">${L.length} above ${T}%</span>`+L.map(r=>`<div class="li"><span>${r.n}</span><b>${f1(r.d[j])}</b></div>`).join('')+'</div>'}).join('')+'</div>'}
+function hl(C){const D=dates();
+ let o=`<div class="card"><table><tr><th>Platform</th><th>Listings</th><th>Valid price</th><th>Suspect price</th><th>No EAN yet</th></tr>${PL.map((p,j)=>{const h=C.H[j];return h?`<tr><td>${p[0]}</td><td>${h[0]}</td><td>${h[1]}</td><td class="${h[2]?'er':''}">${h[2]}</td><td>${h[3]}</td></tr>`:`<tr><td>${p[0]}</td><td colspan="4" class="mu">No upload for this date</td></tr>`}).join('')}</table></div>`;
+ o+=`<p><b>Needs checking</b> <span class="mu">${C.bad.length} listings left out of all numbers</span></p><div class="card"><table><tr><th>Platform</th><th>Product</th><th>Price read</th><th>Reason</th></tr>${C.bad.map(b=>`<tr><td>${PL.find(p=>p[2]==b.k)[0]}</td><td>${MS[b.e][0]}</td><td>${rs(b.p)}</td><td>${b.w}</td></tr>`).join('')||'<tr><td colspan="4" class="mu">Nothing to check</td></tr>'}</table></div>`;
+ return o+`<p><b>Coverage by date</b></p><div class="card"><table><tr><th>Date</th>${PL.map(p=>`<th>${p[0]}</th>`).join('')}${ADMIN?'<th></th>':''}</tr>${D.map(d=>`<tr><td>${lab(d)}</td>${PL.map(p=>`<td class="${SN[d][p[2]]?'ok':'mu'}">${SN[d][p[2]]?'Uploaded':'Missing'}</td>`).join('')}${ADMIN?`<td><button class="btn" data-rm="${d}">Remove</button></td>`:''}</tr>`).join('')}</table></div>`}
+function up(){return `<div class="drop"><b>Drop the Amazon, Flipkart and Supertails reports here</b><p class="mu">Excel files (.xlsx). The platform is recognised from the columns. Uploading a platform and date that already exist replaces it. After saving, download data.json and upload it to your GitHub repo.</p><input type="file" id="fi" accept=".xlsx" multiple></div>${msg?`<p class="ok">${msg}</p>`:''}`+
+ (PV.length?`<div class="card">${PV.map((p,i)=>{if(p.err)return `<div class="pv"><span>${p.name}</span><span class="er" style="grid-column:2/7">${p.err}</span></div>`;const pl=PL.find(x=>x[2]==p.k),m=p.rows.filter(r=>MAP[p.k][r[0]]),sp=m.filter(r=>r[1]>0&&why(r[1],r[2],MS[MAP[p.k][r[0]]][3])).length;
+  return `<div class="pv"><span><b>${pl[0]}</b><br><small class="mu">${p.name}</small></span><label>Date <input type="date" data-pv="${i}" value="${p.d}"></label><span>${p.rows.length} listings</span><span>${m.length} matched</span><span>${p.rows.length-m.length} no EAN</span><span class="${sp?'er':''}">${sp} suspect</span></div>`}).join('')}</div><p><button class="btn" id="sv">Save reports</button></p>`:'')}
+const tr=()=>'<div class="card" style="padding:18px"><b>Trends fill in as daily reports are saved</b><p class="mu">Each upload adds a dated snapshot. Open a product to see its discount on every platform over time, with a line at the high-discount threshold. This view is coming once more than one day is saved.</p></div>';
+function draw(){document.body.className=ADMIN?'adm':'vw';$('#nav').innerHTML=TABS().map(t=>`<button data-t="${t[0]}" class="${t[0]==tab?'on':''}">${t[1]}</button>`).join('');
+ $('#dt').innerHTML=dates().map(d=>`<option value="${d}"${d==date?' selected':''}>${lab(d)}</option>`).join('');
+ document.querySelectorAll('.f').forEach(e=>e.style.display=tab=='cmp'?'flex':'none');
+ $('#thx').textContent=T;$('#th').value=T;$('#mp').value=MP;
+ const C=calc(date);$('#main').innerHTML=({cmp,hz,hl,up,tr}[tab])(C);
+ $('#bd').textContent=ADMIN&&dirty?'Unpublished changes. Click Download data.json, then upload it to your GitHub repo.':date=='sample'?'Sample data is shown.':date?'Showing '+date:'No data saved yet.'}
+const dt=x=>{if(typeof x=='number'){const p=XLSX.SSF.parse_date_code(x);return p?`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`:''}return /^\d{4}-\d\d-\d\d/.test(String(x))?String(x).slice(0,10):''};
+async function readF(f){const wb=XLSX.read(await f.arrayBuffer()),J=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:null}),c=Object.keys(J[0]||{});
+ let k,i,pc,mc;if(c.includes('ASIN')){k='A';i='ASIN';pc='sale_price';mc='mrp'}else if(c.includes('FSN')){k='F';i='FSN';pc='sale_price';mc='mrp'}else if(c.includes('Current Price')){k='S';i='SKU';pc='Current Price';mc='MRP'}else return{name:f.name,err:'Not a recognised report. Expected Amazon, Flipkart or Supertails columns.'};
+ const num=v=>{const n=parseFloat(String(v??'').replace(/,/g,''));return isNaN(n)?null:n},seen=new Set(),rows=[];
+ J.forEach(r=>{const id=String(r[i]??'').trim();if(!id||seen.has(id))return;seen.add(id);rows.push([id,k=='S'||String(r.status||'').startsWith('OK')?num(r[pc]):null,num(r[mc])])});
+ return{name:f.name,k,rows,d:dt(J[0].scraped_at)||(f.name.match(/(20\d\d)(\d\d)(\d\d)/)||[]).slice(1).join('-')}}
+function save(){let n=0;for(const p of PV){if(p.err||!/^\d{4}-\d\d-\d\d$/.test(p.d))continue;(SN[p.d]=SN[p.d]||{})[p.k]=p.rows;n++}
+ PV=[];dirty=true;date=dflt();msg=`${n} reports added. Download data.json and upload it to GitHub to publish them.`;draw()}
+function dlJson(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({settings:{T,MP},snaps:SN,map:MAP,master:MS})],{type:'application/json'}));a.download='data.json';a.click();dirty=false;draw()}
+function report(){const C=calc(date),L=filt(C),n=PL.map(p=>p[0]);
+ const A=[['Product','EAN','Category','Pack','Our MRP',...n.flatMap(x=>[x+' price',x+' discount %']),'Gap (pp)','High discount on']];
+ L.forEach(r=>A.push([r.n,r.e,r.c,r.k,r.m,...r.d.flatMap((d,j)=>[r.p[j],d!=null?+d.toFixed(1):r.b[j]?'suspect':'']),+G(r).toFixed(1),r.d.map((d,j)=>d>T?n[j]:'').filter(Boolean).join(', ')]));
+ const B=[['Platform','Product','EAN','Price read','Reason'],...C.bad.map(b=>[PL.find(p=>p[2]==b.k)[0],MS[b.e][0],b.e,b.p,b.w])];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(A),'Comparison');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(B),'Suspect prices');
+ XLSX.writeFile(wb,`discount_report_${date||'none'}.xlsx`)}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t]'),r=e.target.closest('.row'),x=e.target.closest('[data-rm]');
+ if(e.target.id=='sv')save();else if(e.target.id=='dl')dlJson();else if(e.target.id=='rp')report();
+ else if(x){if(confirm('Remove all saved data for '+lab(x.dataset.rm)+'?')){delete SN[x.dataset.rm];dirty=true;date=dflt();draw()}}
+ else if(t){tab=t.dataset.t;draw()}else if(r){open=open==r.dataset.e?'':r.dataset.e;draw()}});
+document.addEventListener('change',async e=>{const t=e.target;if(t.id=='fi'){PV=await Promise.all([...t.files].map(readF));msg='';draw()}else if(t.id=='jf')load(JSON.parse(await t.files[0].text()));else if(t.dataset.pv!=null)PV[+t.dataset.pv].d=t.value;else if(t.id=='dt'){date=t.value;draw()}});
+['q','cat','so','hi'].forEach(i=>$('#'+i).addEventListener('input',()=>{open='';draw()}));
+$('#th').addEventListener('input',e=>{T=+e.target.value||12;dirty=true;draw()});$('#mp').addEventListener('input',e=>{MP=+e.target.value||40;dirty=true;draw()});
+document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.classList.contains('row'))e.target.click()});
+function load(j){MAP=j.map;MS=j.master;SN=j.snaps;T=j.settings.T;MP=j.settings.MP;date=dflt();
+ const cs=[...new Set(Object.values(MS).map(m=>m[1]))].sort();$('#cat').innerHTML='<option value="">All categories</option>'+cs.map(c=>`<option>${c}</option>`).join('');draw()}
+fetch('data.json?'+Date.now()).then(r=>r.json()).then(load).catch(()=>{document.body.className=ADMIN?'adm':'vw';$('#main').innerHTML='<div class="drop"><b>Could not load data.json</b><p class="mu">Keep data.json in the same folder as this page. If you opened the file from your computer, choose data.json here.</p><input type="file" id="jf" accept=".json"></div>'});
+</script></body></html>
