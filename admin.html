@@ -32,7 +32,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .dot{position:absolute;top:5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--cd)}
 .dot.h{box-shadow:0 0 0 2px var(--hi)}
 .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:right}
-.nums span{padding:1px 4px;border-radius:4px}.nums .h{background:var(--hb);color:var(--hi);font-weight:700}.nums .sus{outline:1px dashed var(--mu)}
+.nums span{padding:1px 4px;border-radius:4px}.nums .pc{color:var(--pc)}.nums .h{background:var(--hb);color:var(--pc,var(--hi));font-weight:700;background:color-mix(in srgb,var(--pc) 18%,transparent);box-shadow:inset 3px 0 0 var(--pc)}.nums .sus{outline:1px dashed var(--mu)}
 .gp{text-align:right;font-weight:700}
 .det{padding:8px 14px 12px;background:var(--bg);border-bottom:1px solid var(--ln);font-size:13px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .lg{display:flex;gap:12px;font-size:12px}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
@@ -81,7 +81,7 @@ const V=r=>r.d.filter(x=>x!=null),G=r=>{const v=V(r);return v.length>1?Math.max(
 const TABS=()=>[['cmp','Compare'],['hz','High discount zone'],['hl','Data health'],...(ADMIN?[['up','Upload reports']]:[]),['tr','Trends']];
 function sum(C){return '<div class="sum">'+PL.map((p,i)=>{const v=C.all.map(r=>r.d[i]).filter(x=>x!=null),h=v.filter(x=>x>T).length;
  return `<div class="sm" style="border-color:var(${p[1]})"><small>${p[0]} average discount</small><b>${v.length?f1(v.reduce((a,b)=>a+b,0)/v.length):'no data'}</b><small>${C.s[p[2]]?`${h} of ${v.length} products above ${T}%`:'No upload for this date'}</small></div>`}).join('')+'</div>'}
-function cell(r,j,C){const d=r.d[j];return d!=null?`<span class="${d>T?'h':''}">${f1(d)}</span>`:r.b[j]?'<span class="sus" title="Price looks wrong. See Data health">price suspect</span>':`<span class="mu">${C.s[PL[j][2]]?'no price':'no upload'}</span>`}
+function cell(r,j,C){const d=r.d[j];return d!=null?`<span class="pc${d>T?' h':''}" style="--pc:var(${PL[j][1]})">${f1(d)}</span>`:r.b[j]?'<span class="sus" title="Price looks wrong. See Data health">price suspect</span>':`<span class="mu">${C.s[PL[j][2]]?'no price':'no upload'}</span>`}
 function filt(C){const q=$('#q').value.toLowerCase(),c=$('#cat').value,so=$('#so').value,h=$('#hi').checked;
  return C.rows.filter(r=>(!q||sx(r).includes(q))&&(!c||r.c==c)&&(!h||V(r).some(x=>x>T)))
  .sort(so=='gap'?(a,b)=>G(b)-G(a):so=='max'?(a,b)=>Math.max(...V(b))-Math.max(...V(a)):(a,b)=>a.n.localeCompare(b.n))}
